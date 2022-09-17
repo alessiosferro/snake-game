@@ -26,12 +26,18 @@ export class Game {
     this.#player = new Player(this.#fruit);
   }
 
+  #drawScore() {
+    this.#ctx.fillStyle = "black";
+    this.#ctx.font = "bold 48px Helvetica";
+    this.#ctx.fillText(`Punteggio: ${this.#player.score}`, 220, 64);
+  }
+
   #drawGrid() {
     this.#ctx.strokeStyle = "gray";
     this.#ctx.lineWidth = 1;
 
     for (let i = 0; i < this.#rowLength; i++) {
-      for (let j = 0; j < this.#rowLength; j++) {
+      for (let j = 2; j < this.#rowLength + 2; j++) {
         this.#ctx.strokeRect(
           i * this.#cellSize,
           j * this.#cellSize,
@@ -57,18 +63,22 @@ export class Game {
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
 
     this.#drawGrid();
+    this.#drawScore();
     this.#drawFruit();
 
     this.#player.updatePlayerPosition(this.#canvas.width, this.#canvas.height);
 
     this.#ctx.fillStyle = "black";
-    this.#ctx.fillRect(
-      this.#player.x,
-      this.#player.y,
-      this.#player.size,
-      this.#player.size
-    );
 
-    setTimeout(() => this.run(), 500);
+    for (const snakePart of this.#player.snakeParts) {
+      this.#ctx.fillRect(
+        snakePart.x,
+        snakePart.y,
+        this.#player.size,
+        this.#player.size
+      );
+    }
+
+    setTimeout(() => this.run(), 200);
   }
 }

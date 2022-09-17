@@ -1,33 +1,26 @@
+import { SnakePart } from "./SnakePart.js";
+
 export class Player {
-  #x;
-  #y;
   #speed;
   #dx;
   #dy;
   #size;
   #length;
-
+  #score;
+  #snakeParts;
   #fruit;
 
   constructor(fruit) {
-    this.#x = 0;
-    this.#y = 0;
+    this.#snakeParts = [new SnakePart(0, 96)];
     this.#speed = 48;
     this.#dx = this.#speed;
     this.#dy = 0;
     this.#size = 48;
     this.#length = 1;
     this.#fruit = fruit;
+    this.#score = 0;
 
     this.#setupPlayerMove();
-  }
-
-  get x() {
-    return this.#x;
-  }
-
-  get y() {
-    return this.#y;
   }
 
   get speed() {
@@ -54,25 +47,50 @@ export class Player {
     return this.#fruit;
   }
 
+  get score() {
+    return this.#score;
+  }
+
+  get snakeParts() {
+    return this.#snakeParts;
+  }
+
   updatePlayerPosition(canvasWidth, canvasHeight) {
-    if (this.#x + this.#size + this.#dx > canvasWidth) {
-      this.#x = 0;
-    } else if (this.#x + this.#dx < 0) {
-      this.#x = canvasWidth - this.#size;
-    } else {
-      this.#x += this.#dx;
+    for (const snakePart of this.#snakeParts) {
+      snakePart.lastX = snakePart.x;
+      snakePart.lastY = snakePart.y;
+
+      if (snakePart.nextSnakePart) {
+        snakePart.x = snakePart.nextSnakePart.prevX;
+        snakePart.y = snakePart.nextSnakePart.prevY;
+      } else if (snakePart.x + this.#dx + this.#size > canvasWidth) {
+        snakePart.x = 0;
+      } else if (snakePart.y + this.#dy + this.#size > canvasHeight) {
+        snakePart.y = 96;
+      } else if (snakePart.x + this.#dx < canvasWidth) {
+        snakePart.x = canvasWidth - this.#size;
+      } else if (snakePart.y + this.#dy < 96) {
+        snakePart.y = canvasHeight - this.#size;
+      }
     }
 
-    if (this.#y + this.#size + this.#dy > canvasHeight) {
-      this.#y = 0;
-    } else if (this.#y + this.#dy < 0) {
-      this.#y = canvasHeight - this.#size;
-    } else {
-      this.#y += this.#dy;
-    }
+    const [firstSnakePart] = this.#snakeParts;
+    const lastSnakePart = this.#snakeParts[this.#snakeParts.length - 1];
 
-    if (this.#x === this.#fruit.x && this.#y === this.#fruit.y) {
+    if (
+      firstSnakePart.x === this.#fruit.x &&
+      firstSnakePart.y === this.#fruit.y
+    ) {
+      this.#score++;
       this.#fruit.eat();
+      this.#snakeParts = [
+        ...this.#snakeParts,
+        new SnakePart({
+          x: lastSnakePart.prevX,
+          y: lastSnakePart.prevY,
+          nextSnakePart: lastSnakePart,
+        }),
+      ];
     }
   }
 
