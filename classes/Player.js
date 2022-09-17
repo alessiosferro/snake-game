@@ -7,7 +7,9 @@ export class Player {
   #size;
   #length;
 
-  constructor() {
+  #fruit;
+
+  constructor(fruit) {
     this.#x = 0;
     this.#y = 0;
     this.#speed = 48;
@@ -15,6 +17,7 @@ export class Player {
     this.#dy = 0;
     this.#size = 48;
     this.#length = 1;
+    this.#fruit = fruit;
 
     this.#setupPlayerMove();
   }
@@ -47,6 +50,10 @@ export class Player {
     return this.#length;
   }
 
+  get fruit() {
+    return this.#fruit;
+  }
+
   updatePlayerPosition(canvasWidth, canvasHeight) {
     if (this.#x + this.#size + this.#dx > canvasWidth) {
       this.#x = 0;
@@ -62,6 +69,10 @@ export class Player {
       this.#y = canvasHeight - this.#size;
     } else {
       this.#y += this.#dy;
+    }
+
+    if (this.#x === this.#fruit.x && this.#y === this.#fruit.y) {
+      this.#fruit.eat();
     }
   }
 
