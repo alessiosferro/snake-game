@@ -2,8 +2,6 @@ import { SnakePart } from "./SnakePart.js";
 
 export class Player {
   #speed;
-  #dx;
-  #dy;
   #size;
   #length;
   #score;
@@ -11,30 +9,29 @@ export class Player {
   #fruit;
 
   constructor(fruit) {
-    this.#snakeParts = [
-      new SnakePart({ x: 0, y: 96, prevX: 0, prevY: 96, nextSnakePart: null }),
-    ];
     this.#speed = 48;
-    this.#dx = this.#speed;
-    this.#dy = 0;
     this.#size = 48;
     this.#length = 1;
     this.#fruit = fruit;
     this.#score = 0;
+
+    this.#snakeParts = [
+      new SnakePart({
+        x: 0,
+        dx: this.#speed,
+        dy: 0,
+        y: 96,
+        prevX: 0,
+        prevY: 96,
+        nextSnakePart: null,
+      }),
+    ];
 
     this.#setupPlayerMove();
   }
 
   get speed() {
     return this.#speed;
-  }
-
-  get dx() {
-    return this.#dx;
-  }
-
-  get dy() {
-    return this.#dy;
   }
 
   get size() {
@@ -60,30 +57,32 @@ export class Player {
   updatePlayerPosition(canvasWidth, canvasHeight) {
     this.#snakeParts = this.#snakeParts.map((snakePart) => {
       if (snakePart.nextSnakePart) {
-        return {
+        return new SnakePart({
+          ...snakePart,
           prevX: snakePart.x,
           prevY: snakePart.y,
           x: snakePart.nextSnakePart.prevX,
           y: snakePart.nextSnakePart.prevY,
-        };
+        });
       }
 
-      return {
+      return new SnakePart({
+        ...snakePart,
         prevX: snakePart.x,
         prevY: snakePart.y,
         x:
-          snakePart.x + this.#dx + this.#size > canvasWidth
+          snakePart.x + snakePart.dx + this.#size > canvasWidth
             ? 0
-            : snakePart.x + this.#dx < 0
+            : snakePart.x + snakePart.dx < 0
             ? canvasWidth - this.#size
-            : snakePart.x + this.#dx,
+            : snakePart.x + snakePart.dx,
         y:
-          snakePart.y + this.#dy + this.#size > canvasHeight
+          snakePart.y + snakePart.dy + this.#size > canvasHeight
             ? 96
-            : snakePart.y + this.#dy < 96
+            : snakePart.y + snakePart.dy < 96
             ? canvasHeight - this.#size
-            : snakePart.y + this.#dy,
-      };
+            : snakePart.y + snakePart.dy,
+      });
     });
 
     console.log(this.#snakeParts);
@@ -117,30 +116,71 @@ export class Player {
 
   #setupPlayerMove() {
     document.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowUp" || this.#dy !== 0) return;
+      if (event.key !== "ArrowUp") return;
 
-      this.#dy = this.#dy - this.#speed;
-      this.#dx = 0;
+      this.snakeParts.map((snakePart) => ({
+        ...snakePart,
+        ...(snakePart.nextSnakePart
+          ? {
+              dx: snakePart.nextSnakePart.dx,
+              dy: snakePart.nextSnakePart.dy,
+            }
+          : {
+              dy: snakePart.dy - this.#speed,
+              dx: 0,
+            }),
+      }));
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowRight" || this.#dx !== 0) return;
-      this.#dx = this.#dx + this.#speed;
-      this.#dy = 0;
+      if (event.key !== "ArrowRight") return;
+
+      this.snakeParts.map((snakePart) => ({
+        ...snakePart,
+        ...(snakePart.nextSnakePart
+          ? {
+              dx: snakePart.nextSnakePart.dx,
+              dy: snakePart.nextSnakePart.dy,
+            }
+          : {
+              dx: snakePart.dx + this.#speed,
+              dy: 0,
+            }),
+      }));
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowDown" || this.#dy !== 0) return;
+      if (event.key !== "ArrowDown") return;
 
-      this.#dy = this.#dy + this.#speed;
-      this.#dx = 0;
+      this.snakeParts.map((snakePart) => ({
+        ...snakePart,
+        ...(snakePart.nextSnakePart
+          ? {
+              dx: snakePart.nextSnakePart.dx,
+              dy: snakePart.nextSnakePart.dy,
+            }
+          : {
+              dx: 0,
+              dy: snakePart.dy + this.#speed,
+            }),
+      }));
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowLeft" || this.#dx !== 0) return;
+      if (event.key !== "ArrowLeft") return;
 
-      this.#dx = this.#dx - this.#speed;
-      this.#dy = 0;
+      this.snakeParts.map((snakePart) => ({
+        ...snakePart,
+        ...(snakePart.nextSnakePart
+          ? {
+              dx: snakePart.nextSnakePart.dx,
+              dy: snakePart.nextSnakePart.dy,
+            }
+          : {
+              dx: snakePart.dx - this.#speed,
+              dy: 0,
+            }),
+      }));
     });
   }
 }

@@ -1,13 +1,17 @@
 export class SnakePart {
   #x;
   #y;
+  #dx;
+  #dy;
   #prevX;
   #prevY;
   #nextSnakePart;
 
-  constructor({ x, y, prevX, prevY, nextSnakePart }) {
+  constructor({ x, y, dx, dy, prevX, prevY, nextSnakePart }) {
     this.#x = x;
     this.#y = y;
+    this.#dx = dx;
+    this.#dy = dy;
     this.#prevX = prevX;
     this.#prevY = prevY;
     this.#nextSnakePart = nextSnakePart;
@@ -32,6 +36,14 @@ export class SnakePart {
 
   get prevY() {
     return this.#prevY;
+  }
+
+  get dx() {
+    return this.#dx;
+  }
+
+  get dy() {
+    return this.#dy;
   }
 
   set x(x) {
