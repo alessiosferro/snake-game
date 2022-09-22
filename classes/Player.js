@@ -5,19 +5,24 @@ export class Player {
   #size = 48;
   #length = 1;
   #score = 0;
+  #enemy;
   #fruit;
   #snakeParts = [
-    new SnakePart({ x: 0, y: 96, dx: this.#speed, dy: 0, prevX: 0, prevY: 96, nextSnakePart: null }),
+    new SnakePart({ isHead: true, x: 0, y: 96, dx: this.#speed, dy: 0, prevX: 0, prevY: 96, nextSnakePart: null }),
   ];
 
-
-  constructor(fruit) {
+  constructor(fruit, enemy) {
     this.#fruit = fruit;
+    this.#enemy = enemy;
     this.#setupPlayerMove();
   }
 
   get speed() {
     return this.#speed;
+  }
+
+  get head() {
+    return this.snakeParts[0];
   }
 
   get size() {
@@ -59,6 +64,22 @@ export class Player {
     })
 
     this.#eatFruit();
+
+    // detect collision with enemy
+    if (this.head.x === this.#enemy.x && this.head.y === this.#enemy.y) {
+      return true;
+    }
+
+    // detect collision with snake part
+    for (let i = 0; i < this.#snakeParts.length; i++) {
+      for (let j = i + 1; j < this.#snakeParts.length - 1; j++) {
+        if (this.#snakeParts[i].x === this.#snakeParts[j].x && this.#snakeParts[i].y === this.#snakeParts[j].y) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   #eatFruit() {
@@ -80,6 +101,7 @@ export class Player {
     this.snakeParts.push(new SnakePart({
       x: lastSnakePart.prevX,
       y: lastSnakePart.prevY,
+      isHead: false,
       prevX: lastSnakePart.prevX,
       prevY: lastSnakePart.prevY,
       dx: lastSnakePart.dx,
@@ -90,7 +112,7 @@ export class Player {
 
   #setupPlayerMove() {
     document.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowUp") return;
+      if (event.key !== "ArrowUp" || this.head.dy !== 0) return;
 
       for (const part of this.snakeParts) {
         if (part.nextSnakePart) {
@@ -105,7 +127,7 @@ export class Player {
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowRight") return;
+      if (event.key !== "ArrowRight" || this.head.dx !== 0) return;
 
       for (const part of this.snakeParts) {
         if (part.nextSnakePart) {
@@ -120,7 +142,7 @@ export class Player {
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowDown") return;
+      if (event.key !== "ArrowDown" || this.head.dy !== 0) return;
 
       for (const part of this.snakeParts) {
         if (part.nextSnakePart) {
@@ -135,7 +157,7 @@ export class Player {
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowLeft") return;
+      if (event.key !== "ArrowLeft" || this.head.dx !== 0) return;
 
       for (const part of this.snakeParts) {
         if (part.nextSnakePart) {

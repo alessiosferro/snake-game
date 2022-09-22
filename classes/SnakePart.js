@@ -5,10 +5,12 @@ export class SnakePart {
   #dy;
   #prevX;
   #prevY;
+  #isHead;
   #nextSnakePart;
 
-  constructor({ x, y, dx, dy, prevX, prevY, nextSnakePart }) {
+  constructor({ isHead, x, y, dx, dy, prevX, prevY, nextSnakePart }) {
     this.#x = x;
+    this.#isHead = isHead;
     this.#y = y;
     this.#dx = dx;
     this.#dy = dy;
@@ -44,6 +46,10 @@ export class SnakePart {
 
   get dy() {
     return this.#dy;
+  }
+
+  get isHead() {
+    return this.#isHead;
   }
 
   get nextSnakePart() {

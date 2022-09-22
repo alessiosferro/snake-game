@@ -1,5 +1,6 @@
 import { Fruit } from "./Fruit.js";
 import { Player } from "./Player.js";
+import {Enemy} from "./Enemy.js";
 
 export class Game {
   #canvas;
@@ -9,6 +10,7 @@ export class Game {
   #cellSize;
   #rowLength;
   #gridSize;
+  #enemy;
 
   constructor(cellSize = 48, gridSize = 720) {
     this.#cellSize = cellSize;
@@ -22,14 +24,17 @@ export class Game {
     this.#canvas = document.querySelector("#canvas");
     this.#ctx = this.#canvas.getContext("2d");
 
+    this.#enemy = new Enemy(this.#cellSize);
     this.#fruit = new Fruit(this.#cellSize);
-    this.#player = new Player(this.#fruit);
+    this.#player = new Player(this.#fruit, this.#enemy);
   }
 
-  #drawScore() {
+  #drawScore(isGameOver) {
     this.#ctx.fillStyle = "black";
-    this.#ctx.font = "bold 48px Helvetica";
-    this.#ctx.fillText(`Punteggio: ${this.#player.score}`, 220, 64);
+    this.#ctx.font = isGameOver ? "bold 32px Helvetica" : "bold 48px Helvetica";
+    const text = isGameOver ?  `Hai perso! Punteggio finale: ${this.#player.score}` : `Punteggio: ${this.#player.score}`;
+    const x = isGameOver ? 140 : 220;
+    this.#ctx.fillText(text, x, 64);
   }
 
   #drawGrid() {
@@ -49,7 +54,7 @@ export class Game {
   }
 
   #drawFruit() {
-    this.#ctx.fillStyle = "green";
+    this.#ctx.fillStyle = this.#fruit.color;
 
     this.#ctx.fillRect(
       this.#fruit.x,
@@ -59,18 +64,28 @@ export class Game {
     );
   }
 
+  #drawEnemy() {
+    this.#ctx.fillStyle = this.#enemy.color;
+
+    this.#ctx.fillRect(
+        this.#enemy.x,
+        this.#enemy.y,
+        this.#cellSize,
+        this.#cellSize
+    );
+  }
+
   run() {
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
 
     this.#drawGrid();
-    this.#drawScore();
     this.#drawFruit();
+    this.#drawEnemy();
 
-    this.#player.updatePlayerPosition(this.#canvas.width, this.#canvas.height);
-
-    this.#ctx.fillStyle = "black";
+    const isGameOver = this.#player.updatePlayerPosition(this.#canvas.width, this.#canvas.height);
 
     for (const snakePart of this.#player.snakeParts) {
+      this.#ctx.fillStyle = snakePart.isHead ? 'crimson' : 'black';
       this.#ctx.fillRect(
         snakePart.x,
         snakePart.y,
@@ -79,6 +94,12 @@ export class Game {
       );
     }
 
-    setTimeout(() => this.run(), 200);
+    this.#drawScore(isGameOver);
+
+    if (isGameOver) {
+      return;
+    }
+
+    setTimeout(() => this.run(), 150);
   }
 }
