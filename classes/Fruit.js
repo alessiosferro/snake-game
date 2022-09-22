@@ -10,13 +10,21 @@ export class Fruit {
   }
 
   #changeFruitCoordinates() {
-    this.#x = (Math.round(Math.random() * 100) % 15) * this.#size;
+    this.x = (Math.round(Math.random() * 100) % 15) * this.#size;
     const y = (Math.round(Math.random() * 100) % 15) * this.#size;
-    this.#y = y < 96 ? 96 : y;
+    this.y = y < 96 ? 96 : y;
   }
 
   eat() {
     this.#changeFruitCoordinates();
+  }
+
+  set x(x) {
+    this.#x = x;
+  }
+
+  set y(y) {
+    this.#y = y;
   }
 
   get x() {

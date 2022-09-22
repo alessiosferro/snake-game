@@ -46,12 +46,28 @@ export class SnakePart {
     return this.#dy;
   }
 
+  get nextSnakePart() {
+    return this.#nextSnakePart;
+  }
+
+  set nextSnakePart(snakePart) {
+    this.#nextSnakePart = snakePart;
+  }
+
   set x(x) {
     this.#x = x;
   }
 
   set y(y) {
     this.#y = y;
+  }
+
+  set dx(dx) {
+    this.#dx = dx;
+  }
+
+  set dy(dy) {
+    this.#dy = dy;
   }
 
   set prevX(x) {

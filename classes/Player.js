@@ -1,32 +1,18 @@
 import { SnakePart } from "./SnakePart.js";
 
 export class Player {
-  #speed;
-  #size;
-  #length;
-  #score;
-  #snakeParts;
+  #speed = 48;
+  #size = 48;
+  #length = 1;
+  #score = 0;
   #fruit;
+  #snakeParts = [
+    new SnakePart({ x: 0, y: 96, dx: this.#speed, dy: 0, prevX: 0, prevY: 96, nextSnakePart: null }),
+  ];
+
 
   constructor(fruit) {
-    this.#speed = 48;
-    this.#size = 48;
-    this.#length = 1;
     this.#fruit = fruit;
-    this.#score = 0;
-
-    this.#snakeParts = [
-      new SnakePart({
-        x: 0,
-        dx: this.#speed,
-        dy: 0,
-        y: 96,
-        prevX: 0,
-        prevY: 96,
-        nextSnakePart: null,
-      }),
-    ];
-
     this.#setupPlayerMove();
   }
 
@@ -55,37 +41,22 @@ export class Player {
   }
 
   updatePlayerPosition(canvasWidth, canvasHeight) {
-    this.#snakeParts = this.#snakeParts.map((snakePart) => {
-      if (snakePart.nextSnakePart) {
-        return new SnakePart({
-          ...snakePart,
-          prevX: snakePart.x,
-          prevY: snakePart.y,
-          x: snakePart.nextSnakePart.prevX,
-          y: snakePart.nextSnakePart.prevY,
-        });
+    this.#snakeParts.forEach(part => {
+      if (part.nextSnakePart) {
+        part.prevX = part.x;
+        part.prevY = part.y;
+        part.x = part.nextSnakePart.prevX;
+        part.y = part.nextSnakePart.prevY;
+        return;
       }
 
-      return new SnakePart({
-        ...snakePart,
-        prevX: snakePart.x,
-        prevY: snakePart.y,
-        x:
-          snakePart.x + snakePart.dx + this.#size > canvasWidth
-            ? 0
-            : snakePart.x + snakePart.dx < 0
-            ? canvasWidth - this.#size
-            : snakePart.x + snakePart.dx,
-        y:
-          snakePart.y + snakePart.dy + this.#size > canvasHeight
-            ? 96
-            : snakePart.y + snakePart.dy < 96
-            ? canvasHeight - this.#size
-            : snakePart.y + snakePart.dy,
-      });
-    });
-
-    console.log(this.#snakeParts);
+      part.prevX = part.x;
+      part.prevY = part.y;
+      part.x = part.x + part.dx + this.#size > canvasWidth
+          ? 0 : part.x + part.dx < 0 ? canvasWidth - this.#size : part.x + part.dx;
+      part.y = part.y + part.dy + this.#size > canvasHeight
+          ? 96 : part.y + part.dy < 96 ? canvasHeight - this.#size : part.y + part.dy;
+    })
 
     this.#eatFruit();
   }
@@ -101,86 +72,81 @@ export class Player {
       return;
     }
 
+
+
     this.#score++;
     this.#fruit.eat();
 
-    this.#snakeParts = [
-      ...this.#snakeParts,
-      new SnakePart({
-        x: lastSnakePart.prevX,
-        y: lastSnakePart.prevY,
-        nextSnakePart: lastSnakePart,
-      }),
-    ];
+    this.snakeParts.push(new SnakePart({
+      x: lastSnakePart.prevX,
+      y: lastSnakePart.prevY,
+      prevX: lastSnakePart.prevX,
+      prevY: lastSnakePart.prevY,
+      dx: lastSnakePart.dx,
+      dy: lastSnakePart.dy,
+      nextSnakePart: lastSnakePart,
+    }));
   }
 
   #setupPlayerMove() {
     document.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowUp") return;
 
-      this.snakeParts.map((snakePart) => ({
-        ...snakePart,
-        ...(snakePart.nextSnakePart
-          ? {
-              dx: snakePart.nextSnakePart.dx,
-              dy: snakePart.nextSnakePart.dy,
-            }
-          : {
-              dy: snakePart.dy - this.#speed,
-              dx: 0,
-            }),
-      }));
+      for (const part of this.snakeParts) {
+        if (part.nextSnakePart) {
+          part.dx = part.nextSnakePart.dx;
+          part.dy = part.nextSnakePart.dy;
+          return;
+        }
+
+        part.dy = part.dy - this.#speed;
+        part.dx = 0;
+      }
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowRight") return;
 
-      this.snakeParts.map((snakePart) => ({
-        ...snakePart,
-        ...(snakePart.nextSnakePart
-          ? {
-              dx: snakePart.nextSnakePart.dx,
-              dy: snakePart.nextSnakePart.dy,
-            }
-          : {
-              dx: snakePart.dx + this.#speed,
-              dy: 0,
-            }),
-      }));
+      for (const part of this.snakeParts) {
+        if (part.nextSnakePart) {
+          part.dx = part.nextSnakePart.dx;
+          part.dy = part.nextSnakePart.dy;
+          return;
+        }
+
+        part.dx = part.dx + this.#speed;
+        part.dy = 0;
+      }
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowDown") return;
 
-      this.snakeParts.map((snakePart) => ({
-        ...snakePart,
-        ...(snakePart.nextSnakePart
-          ? {
-              dx: snakePart.nextSnakePart.dx,
-              dy: snakePart.nextSnakePart.dy,
-            }
-          : {
-              dx: 0,
-              dy: snakePart.dy + this.#speed,
-            }),
-      }));
+      for (const part of this.snakeParts) {
+        if (part.nextSnakePart) {
+          part.dx = part.nextSnakePart.dx;
+          part.dy = part.nextSnakePart.dy;
+          return;
+        }
+
+        part.dy = part.dy + this.#speed;
+        part.dx = 0;
+      }
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowLeft") return;
 
-      this.snakeParts.map((snakePart) => ({
-        ...snakePart,
-        ...(snakePart.nextSnakePart
-          ? {
-              dx: snakePart.nextSnakePart.dx,
-              dy: snakePart.nextSnakePart.dy,
-            }
-          : {
-              dx: snakePart.dx - this.#speed,
-              dy: 0,
-            }),
-      }));
+      for (const part of this.snakeParts) {
+        if (part.nextSnakePart) {
+          part.dx = part.nextSnakePart.dx;
+          part.dy = part.nextSnakePart.dy;
+          return;
+        }
+
+        part.dx = part.dx - this.#speed;
+        part.dy = 0;
+      }
     });
   }
 }
